@@ -1,7 +1,6 @@
 <nav class="top-navbar">
 
   <div class="d-flex align-items-center gap-3">
-
     <button
       class="mobile-menu-btn"
       onclick="toggleSidebar()"
@@ -9,50 +8,47 @@
       <i class="bi bi-list"></i>
     </button>
 
-    <h4 class="page-title">
-      Team Task Manager
+    <h4 class="page-title text-gradient m-0">
+      Task Manager
     </h4>
-
   </div>
 
-  <div class="profile-section d-flex align-items-center gap-4">
+  <div class="profile-section d-flex align-items-center gap-3">
     
     <% if (locals.user) { %>
-      <!-- Theme Toggle -->
-      <button id="theme-toggle" class="btn btn-link text-decoration-none p-0 me-2" title="Toggle Theme">
-        <i class="bi bi-moon fs-5 text-muted"></i>
+      <!-- Theme Toggle Button -->
+      <button id="theme-toggle" class="navbar-action-btn" title="Toggle Theme">
+        <i class="bi bi-moon"></i>
       </button>
 
       <!-- Notification Bell -->
-      <a href="/notifications" class="notification-bell position-relative text-decoration-none">
-        <i class="bi bi-bell fs-5 text-muted"></i>
+      <a href="/notifications" class="navbar-action-btn position-relative" title="Notifications">
+        <i class="bi bi-bell"></i>
         <% if (locals.unreadCount > 0) { %>
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; padding: 0.25rem 0.4rem;">
+          <span class="notification-pulse-badge">
             <%= locals.unreadCount > 9 ? '9+' : locals.unreadCount %>
           </span>
         <% } %>
       </a>
 
+      <!-- Divider -->
+      <div class="navbar-divider d-none d-sm-block"></div>
+
+      <!-- User Profile Dropdown / Details -->
       <div class="d-flex align-items-center gap-3">
-
-        <div class="text-end">
-
-          <div class="fw-semibold">
-            <%= locals.user.email %>
+        <div class="text-end d-none d-sm-block">
+          <div class="fw-bold text-main" style="font-size: 0.9rem; line-height: 1.2;">
+            <%= locals.user.name || locals.user.email.split('@')[0] %>
           </div>
-
-          <small class="text-muted">
+          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px;">
             <%= locals.user.role %>
           </small>
-
         </div>
 
-        <div class="profile-avatar">
+        <div class="navbar-profile-avatar">
           <%= locals.user.email.charAt(0).toUpperCase() %>
         </div>
-
       </div>
-
     <% } %>
 
   </div>
