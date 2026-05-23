@@ -1,156 +1,174 @@
-<div class="dashboard-header">
-
+<div class="dashboard-header d-flex justify-content-between align-items-center mb-4">
   <div>
     <h2 class="dashboard-title">
-      Welcome Back 👋
+      Welcome <%= locals.user.name || locals.user.email.split('@')[0] %> 
     </h2>
-
     <p class="dashboard-subtitle">
-      Here's your project overview.
+      Take a look at your project overview
     </p>
   </div>
-
 </div>
 
 <!-- Stats Cards -->
-
 <div class="row g-4 mt-2">
-
+  <!-- Total Tasks -->
   <div class="col-md-3">
-    <div class="dashboard-card">
-
-      <h6>Total Tasks</h6>
-
-      <h2>
-        <%= dashboardData.stats.totalTasks %>
-      </h2>
-
+    <div class="stat-card-modern stat-card-primary">
+      <div class="stat-info">
+        <span class="stat-label">Total Tasks</span>
+        <h2 class="stat-value">
+          <%= dashboardData.stats.totalTasks %>
+        </h2>
+      </div>
+      <div class="stat-icon-wrapper">
+        <i class="bi bi-list-task"></i>
+      </div>
     </div>
   </div>
 
+  <!-- Completed -->
   <div class="col-md-3">
-    <div class="dashboard-card">
-
-      <h6>Completed</h6>
-
-      <h2>
-        <%= dashboardData.stats.completedTasks %>
-      </h2>
-
+    <div class="stat-card-modern stat-card-success">
+      <div class="stat-info">
+        <span class="stat-label">Completed</span>
+        <h2 class="stat-value">
+          <%= dashboardData.stats.completedTasks %>
+        </h2>
+      </div>
+      <div class="stat-icon-wrapper">
+        <i class="bi bi-check2-circle"></i>
+      </div>
     </div>
   </div>
 
+  <!-- Pending -->
   <div class="col-md-3">
-    <div class="dashboard-card">
-
-      <h6>Pending</h6>
-
-      <h2>
-        <%= dashboardData.stats.pendingTasks %>
-      </h2>
-
+    <div class="stat-card-modern stat-card-warning">
+      <div class="stat-info">
+        <span class="stat-label">Pending</span>
+        <h2 class="stat-value">
+          <%= dashboardData.stats.pendingTasks %>
+        </h2>
+      </div>
+      <div class="stat-icon-wrapper">
+        <i class="bi bi-hourglass-split"></i>
+      </div>
     </div>
   </div>
 
+  <!-- Overdue -->
   <div class="col-md-3">
-    <div class="dashboard-card">
-
-      <h6>Overdue</h6>
-
-      <h2 class="text-danger">
-        <%= dashboardData.stats.overdueTasksCount %>
-      </h2>
-
+    <div class="stat-card-modern stat-card-danger">
+      <div class="stat-info">
+        <span class="stat-label">Overdue</span>
+        <h2 class="stat-value text-danger">
+          <%= dashboardData.stats.overdueTasksCount %>
+        </h2>
+      </div>
+      <div class="stat-icon-wrapper">
+        <i class="bi bi-exclamation-octagon"></i>
+      </div>
     </div>
   </div>
-
 </div>
 
 <!-- Progress + Chart -->
-
-<div class="row mt-5">
-
+<div class="row mt-5 g-4">
+  <!-- Completion Progress -->
   <div class="col-lg-6">
-
-    <div class="dashboard-card">
-
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5>
+    <div class="dashboard-panel-card h-100 d-flex flex-column justify-content-between">
+      <div>
+        <h5 class="dashboard-panel-title mb-4">
           Completion Progress
         </h5>
-
-        <span class="fw-bold">
-          <%= dashboardData.stats.completionRate %>%
-        </span>
+        <p class="text-muted small">
+          Your team's overall productivity rate for all tasks assigned across active projects.
+        </p>
       </div>
-
-      <div class="progress modern-progress">
-
-        <div
-          class="progress-bar"
-          style="
-            width:
+      
+      <div class="py-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="fw-bold text-main" style="font-size: 1rem;">Overall Completion Rate</span>
+          <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-bold" style="font-size: 0.95rem;">
             <%= dashboardData.stats.completionRate %>%
-          "
-        ></div>
-
+          </span>
+        </div>
+        <div class="progress modern-progress" style="height: 12px; border-radius: 6px;">
+          <div
+            class="progress-bar"
+            style="
+              width: <%= dashboardData.stats.completionRate %>%;
+              background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            "
+          ></div>
+        </div>
       </div>
-
+      
+      <div class="border-top pt-3 text-muted small d-flex align-items-center mt-3">
+        <i class="bi bi-info-circle me-2 text-primary"></i>
+        <span>Based on completed vs. total tasks. Keep up the momentum!</span>
+      </div>
     </div>
-
   </div>
 
+  <!-- Tasks Breakdown Chart -->
   <div class="col-lg-6">
-
-    <div class="dashboard-card">
-
-      <h5 class="mb-4">
-        Tasks Overview
+    <div class="dashboard-panel-card h-100">
+      <h5 class="dashboard-panel-title mb-4">
+        Tasks Progress
       </h5>
-
-      <canvas id="tasksChart"></canvas>
-
+      <div style="max-height: 240px; position: relative;" class="d-flex justify-content-center align-items-center">
+        <canvas id="tasksChart" style="max-height: 200px; max-width: 200px;"></canvas> </div>
     </div>
-
   </div>
-
 </div>
 
 <!-- Project Progress -->
 <% if (dashboardData.projectSummaries && dashboardData.projectSummaries.length > 0) { %>
 <div class="row mt-5">
   <div class="col-12">
-    <div class="dashboard-card">
-      <h5 class="mb-4">Ongoing Projects Progress</h5>
+    <div class="dashboard-panel-card">
+      <h5 class="dashboard-panel-title mb-4">Ongoing Projects Progress</h5>
       <div class="row g-4">
         <% dashboardData.projectSummaries.forEach(project => { %>
           <div class="col-md-6 col-lg-4">
-            <div class="p-3 border rounded">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <h6 class="mb-0 text-primary"><%= project.name %></h6>
-                <span class="badge bg-light text-dark"><%= project.progress %>%</span>
-              </div>
-              
-              <div class="progress mb-3" style="height: 8px;">
-                <div class="progress-bar" style="width: <%= project.progress %>%;"></div>
-              </div>
-
-              <div class="d-flex justify-content-between text-muted small mb-3">
-                <span><%= project.completedTasks %> Completed</span>
-                <span><%= project.totalTasks %> Total</span>
+            <div class="project-card-modern">
+              <div>
+                <h6 class="project-card-title text-gradient"><%= project.name %></h6>
+                
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="small text-muted">Completion</span>
+                  <span class="badge bg-primary-subtle text-primary fw-bold" style="font-size: 0.75rem;"><%= project.progress %>%</span>
+                </div>
+                <div class="progress mb-3" style="height: 6px; border-radius: 3px;">
+                  <div class="progress-bar" style="width: <%= project.progress %>%; background: linear-gradient(90deg, #6366f1, #8b5cf6);"></div>
+                </div>
               </div>
 
-              <div class="members-list">
-                <div class="small fw-bold mb-1 text-muted">Members:</div>
-                <% if (project.members.length > 0) { %>
-                  <div class="d-flex flex-wrap gap-1">
-                    <% project.members.forEach(member => { %>
-                      <span class="badge rounded-pill bg-info text-white" style="font-size: 0.7rem;"><%= member %></span>
-                    <% }) %>
-                  </div>
-                <% } else { %>
-                  <span class="text-muted small italic">No members assigned</span>
-                <% } %>
+              <div>
+                <div class="d-flex justify-content-between text-muted small mb-3 border-top pt-2 mt-2">
+                  <span><i class="bi bi-check-circle me-1"></i><%= project.completedTasks %> Done</span>
+                  <span><i class="bi bi-folder2 me-1"></i><%= project.totalTasks %> Total</span>
+                </div>
+
+                <div class="members-list">
+                  <div class="small fw-bold mb-2 text-muted" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Members:</div>
+                  <% if (project.members.length > 0) { %>
+                    <div class="d-flex flex-wrap gap-1">
+                      <% project.members.forEach((member, index) => { %>
+                        <% 
+                          const colors = ['#6366f1', '#ec4899', '#10b981', '#f59e0b', '#3b82f6'];
+                          const color = colors[index % colors.length];
+                        %>
+                        <span class="member-avatar-badge" style="background-color: <%= color %>;" title="<%= member %>">
+                          <%= member.substring(0, 2).toUpperCase() %>
+                        </span>
+                      <% }) %>
+                    </div>
+                  <% } else { %>
+                    <span class="text-muted small italic">No members assigned</span>
+                  <% } %>
+                </div>
               </div>
             </div>
           </div>
@@ -162,21 +180,15 @@
 <% } %>
 
 <!-- Recent Tasks -->
-
-<div class="dashboard-card mt-5">
-
+<div class="modern-table-card mt-5">
   <div class="d-flex justify-content-between align-items-center mb-4">
-
-    <h5>
+    <h5 class="dashboard-panel-title m-0">
       Recent Tasks
     </h5>
-
   </div>
 
   <div class="table-responsive">
-
-    <table class="table modern-table">
-
+    <table class="table modern-table mb-0">
       <thead>
         <tr>
           <th>Task</th>
@@ -185,130 +197,99 @@
           <th>Due Date</th>
         </tr>
       </thead>
-
       <tbody>
-
         <% dashboardData.recentTasks.forEach(task => { %>
-
           <tr>
-
-            <td>
-              <%= task.title %>
+            <td class="recent-task-title-cell">
+              <i class="bi bi-file-earmark-check me-2 text-muted"></i><%= task.title %>
             </td>
-
             <td>
-
-              <span class="
-                badge
-                status-badge
+              <span class="badge status-badge <%= task.status %>">
                 <%= task.status %>
-              ">
-
-                <%= task.status %>
-
               </span>
-
             </td>
-
             <td>
-
-              <span class="
-                badge
-                priority-badge
+              <span class="badge priority-badge <%= task.priority %>">
                 <%= task.priority %>
-              ">
-
-                <%= task.priority %>
-
               </span>
-
             </td>
-
-            <td>
-              <%= new Date(task.dueDate)
-              .toLocaleDateString() %>
+            <td class="recent-task-date-cell">
+              <i class="bi bi-calendar3 me-1"></i><%= new Date(task.dueDate).toLocaleDateString() %>
             </td>
-
           </tr>
-
         <% }) %>
-
       </tbody>
-
     </table>
-
   </div>
-
 </div>
 
 <!-- Overdue Tasks -->
-
-<% if (
-dashboardData.overdueTasks.length > 0
-) { %>
-
-<div class="dashboard-card mt-5">
-
-  <h5 class="text-danger mb-4">
-    Overdue Tasks
+<% if (dashboardData.overdueTasks.length > 0) { %>
+<div class="overdue-card-modern mt-5">
+  <h5 class="text-danger mb-4 d-flex align-items-center fw-bold">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i> Overdue Action Required
   </h5>
-
-  <% dashboardData.overdueTasks.forEach(task => { %>
-
-    <div class="overdue-task">
-
-      <div>
-        <strong>
-          <%= task.title %>
-        </strong>
+  <div class="row">
+    <% dashboardData.overdueTasks.forEach(task => { %>
+      <div class="col-md-6 col-lg-4">
+        <div class="overdue-item-modern">
+          <span class="overdue-title-modern"><%= task.title %></span>
+          <span class="overdue-date-modern">
+            <i class="bi bi-clock-fill me-1"></i> Due <%= new Date(task.dueDate).toLocaleDateString() %>
+          </span>
+        </div>
       </div>
-
-      <div class="text-danger">
-        Due:
-        <%= new Date(task.dueDate)
-        .toLocaleDateString() %>
-      </div>
-
-    </div>
-
-  <% }) %>
-
+    <% }) %>
+  </div>
 </div>
-
 <% } %>
 
 <!-- Chart JS -->
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-  const ctx =
-    document
-      .getElementById('tasksChart');
-
-  new Chart(ctx, {
-    type: 'doughnut',
-
-    data: {
-      labels: [
-        'Completed',
-        'Pending',
-        'In Progress',
-      ],
-
-      datasets: [{
-        data: [
-          <%= dashboardData.stats.completedTasks %>,
-          <%= dashboardData.stats.pendingTasks %>,
-          <%= dashboardData.stats.inProgressTasks %>
+  document.addEventListener('DOMContentLoaded', () => {
+    const ctx = document.getElementById('tasksChart');
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: [
+          'Completed',
+          'Pending',
+          'In Progress',
         ],
-
-        backgroundColor: [
-          '#10b981',
-          '#f59e0b',
-          '#3b82f6',
-        ],
-      }],
-    },
+        datasets: [{
+          data: [
+            <%= dashboardData.stats.completedTasks %>,
+            <%= dashboardData.stats.pendingTasks %>,
+            <%= dashboardData.stats.inProgressTasks %>
+          ],
+          backgroundColor: [
+            '#10b981', // emerald
+            '#f59e0b', // amber
+            '#3b82f6', // blue
+          ],
+          borderWidth: 0,
+          borderRadius: 6,
+        }],
+      },
+      options: {
+        responsive: true,
+        cutout: '75%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              boxWidth: 12,
+              font: {
+                family: "'Inter', sans-serif",
+                size: 12,
+                weight: '500'
+              },
+              padding: 15
+            }
+          }
+        }
+      }
+    });
   });
 </script>

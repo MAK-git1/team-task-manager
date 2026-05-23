@@ -112,7 +112,6 @@ async function loadProjectMembers(projectId) {
       option.textContent = `${member.name} (${member.email})`;
       assigneeSelect.appendChild(option);
     });
-    });
   } catch (err) {
     console.error('Error loading members:', err);
     assigneeSelect.innerHTML = '<option value="" disabled selected>Error loading members</option>';
@@ -126,32 +125,42 @@ THEME TOGGLE
 */
 
 document.addEventListener('DOMContentLoaded', () => {
-  const themeToggle = document.getElementById('theme-toggle');
-  if (!themeToggle) return;
-
-  const icon = themeToggle.querySelector('i');
-  
-  // Check for saved theme
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  document.documentElement.setAttribute('data-theme', savedTheme);
-  updateThemeIcon(savedTheme);
-
-  themeToggle.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    updateThemeIcon(newTheme);
+  // Highlight active link in sidebar
+  const currentPath = window.location.pathname;
+  const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
+  sidebarLinks.forEach(link => {
+    if (link.getAttribute('href') === currentPath) {
+      link.classList.add('active');
+    }
   });
 
-  function updateThemeIcon(theme) {
-    if (theme === 'dark') {
-      icon.classList.remove('bi-moon');
-      icon.classList.add('bi-sun');
-    } else {
-      icon.classList.remove('bi-sun');
-      icon.classList.add('bi-moon');
+  // Theme Toggle
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    const icon = themeToggle.querySelector('i');
+    
+    // Check for saved theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon(newTheme);
+    });
+
+    function updateThemeIcon(theme) {
+      if (theme === 'dark') {
+        icon.classList.remove('bi-moon');
+        icon.classList.add('bi-sun');
+      } else {
+        icon.classList.remove('bi-sun');
+        icon.classList.add('bi-moon');
+      }
     }
   }
 });

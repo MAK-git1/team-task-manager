@@ -1,61 +1,58 @@
-<aside
-  class="sidebar"
-  id="sidebar"
->
+<aside class="sidebar"id="sidebar">
 
   <div class="logo-area">
-
-    <h3>
-      TaskManager
-    </h3>
-
+    <div class="brand-logo-small">
+      <i class="bi bi-layers-half"></i>
+    </div>
+    <div class="brand-text">
+      <span class="brand-name">Task Manager</span>
+      <span class="brand-sub">WORKSPACE</span>
+    </div>
   </div>
 
   <ul class="sidebar-menu">
-
     <li>
       <a href="/">
-        <i class="bi bi-grid"></i>
-        Dashboard
+        <i class="bi bi-grid-fill"></i>
+        <span>Dashboard</span>
       </a>
     </li>
 
     <li>
       <a href="/projects">
-        <i class="bi bi-kanban"></i>
-        Projects
+        <i class="bi bi-folder2-open"></i>
+        <span>Projects</span>
       </a>
     </li>
 
     <li>
       <a href="/tasks">
-        <i class="bi bi-list-task"></i>
-        Tasks
+        <i class="bi bi-check2-square"></i>
+        <span>Tasks</span>
       </a>
     </li>
+
+    <li class="sidebar-menu-divider"></li>
 
     <li>
       <a
         href="/logout"
-        onclick="
-          return confirmAction(
-            'Logout from application?'
-          )
-        "
+        onclick="return confirmAction('Logout from application?')"
       >
-        <i class="bi bi-box-arrow-right"></i>
-        Logout
+        <i class="bi bi-power"></i>
+        <span>Logout</span>
       </a>
     </li>
-
   </ul>
+
+  <div class="sidebar-footer">
+    <span class="sidebar-version">Task Manager v1.1.0</span>
+  </div>
 
 </aside>
 
-<!-- 
 <div
   class="sidebar-overlay"
   id="sidebarOverlay"
   onclick="toggleSidebar()"
 ></div>
--->
