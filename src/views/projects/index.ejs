@@ -49,93 +49,90 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <!-- Projects Grid -->
-
 <div class="row g-4">
-
   <% if (projects.length > 0) { %>
-
     <% projects.forEach(project => { %>
-
-      <div class="col-lg-4">
-
-        <div class="project-card">
-
-          <div class="project-card-header">
-
-            <h5>
-              <%= project.name %>
-            </h5>
-
+      <div class="col-md-6 col-lg-4">
+        <div class="project-card-modern shadow-sm h-100 d-flex flex-column justify-content-between p-4" style="border-radius: 20px; background: var(--card-bg); border: 1px solid var(--border-color);">
+          
+          <div>
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <h5 class="fw-bold text-gradient mb-0" style="font-size: 1.15rem; letter-spacing: -0.3px;">
+                <%= project.name %>
+              </h5>
+              <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1 rounded-pill" style="font-size: 0.7rem; font-weight: 700;">
+                ACTIVE
+              </span>
+            </div>
+            
+            <p class="text-muted small mb-4" style="line-height: 1.5; min-height: 48px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+              <%= project.description || 'No description available' %>
+            </p>
+            
+            <!-- Member stack -->
+            <div class="mb-4">
+              <small class="text-muted d-block mb-2 fw-bold text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.5px;">Team Members</small>
+              <div class="d-flex align-items-center">
+                <% if (project.members && project.members.length > 0) { %>
+                  <div class="d-flex">
+                    <% project.members.slice(0, 4).forEach((m, idx) => { %>
+                      <% if (m && m.user) { %>
+                        <span class="member-avatar-badge" 
+                              style="background-color: <%= ['#6366f1', '#ec4899', '#10b981', '#f59e0b', '#3b82f6'][idx % 5] %>; margin-left: <%= idx > 0 ? '-10px' : '0' %>; border: 2.5px solid var(--card-bg);" 
+                              title="<%= m.user.name || m.user.email %>">
+                          <%= (m.user.name || m.user.email).substring(0, 2).toUpperCase() %>
+                        </span>
+                      <% } %>
+                    <% }) %>
+                    <% if (project.members.length > 4) { %>
+                      <span class="member-avatar-badge bg-secondary text-white d-flex align-items-center justify-content-center" 
+                            style="margin-left: -10px; border: 2.5px solid var(--card-bg);" 
+                            title="And <%= project.members.length - 4 %> more">
+                        +<%= project.members.length - 4 %>
+                      </span>
+                    <% } %>
+                  </div>
+                <% } else { %>
+                  <span class="text-muted small italic">No members assigned</span>
+                <% } %>
+              </div>
+            </div>
           </div>
 
-          <p class="project-description">
-
-            <%= project.description || 'No description available' %>
-
-          </p>
-
-          <div class="project-meta">
-
-            <div>
-              <i class="bi bi-people"></i>
-
-              <%= project.members.length %>
-              Members
+          <div>
+            <div class="d-flex justify-content-between align-items-center text-muted small border-top pt-3 mt-2">
+              <span class="d-flex align-items-center gap-1.5"><i class="bi bi-people-fill text-primary"></i> <%= project.members.length %> Members</span>
+              <span class="d-flex align-items-center gap-1.5"><i class="bi bi-calendar3 text-info"></i> <%= new Date(project.createdAt).toLocaleDateString() %></span>
             </div>
 
-            <div>
-              <i class="bi bi-calendar"></i>
-
-              <%= new Date(project.createdAt)
-              .toLocaleDateString() %>
+            <div class="d-flex gap-2 mt-4">
+              <a href="/projects/<%= project.id %>" class="btn btn-primary flex-grow-1 rounded-pill fw-semibold shadow-sm d-flex align-items-center justify-content-center gap-1.5" style="font-size: 0.85rem; padding: 10px 16px;">
+                <i class="bi bi-folder-symlink-fill"></i> Open Workspace
+              </a>
+              <% if (locals.user && locals.user.role === 'ADMIN') { %>
+                <form action="/projects/<%= project.id %>/delete" method="POST" 
+                      onsubmit="const first = confirmAction('Delete project &quot;<%= project.name %>&quot;? This will also delete all its tasks.'); if(!first) return false; return confirmAction('Are you ABSOLUTELY sure? This action cannot be undone.');"
+                      class="d-inline">
+                  <button type="submit" class="btn btn-outline-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; padding: 0;" title="Delete Project">
+                    <i class="bi bi-trash-fill"></i>
+                  </button>
+                </form>
+              <% } %>
             </div>
-
           </div>
-
-          <a
-            href="/projects/<%= project.id %>"
-            class="btn btn-dark mt-4 w-100"
-          >
-            Open Project
-          </a>
-
-          <% if (locals.user && locals.user.role === 'ADMIN') { %>
-            <form
-              action="/projects/<%= project.id %>/delete"
-              method="POST"
-              onsubmit="const first = confirmAction('Delete project &quot;<%= project.name %>&quot;? This will also delete all its tasks.'); if(!first) return false; return confirmAction('Are you ABSOLUTELY sure? This action cannot be undone.');"
-              class="mt-2"
-            >
-              <button type="submit" class="btn btn-outline-danger w-100">
-                <i class="bi bi-trash me-1"></i>Delete Project
-              </button>
-            </form>
-          <% } %>
 
         </div>
-
       </div>
-
     <% }) %>
-
   <% } else { %>
-
-    <div class="empty-state">
-
-      <i class="bi bi-kanban"></i>
-
-      <h4>
-        No Projects Found
-      </h4>
-
-      <p>
-        Create your first project to begin.
-      </p>
-
+    <div class="col-12">
+      <div class="empty-state p-5 text-center" style="background: var(--card-bg); border-radius: 24px; border: 2px dashed var(--border-color);">
+        <i class="bi bi-kanban text-muted display-3 mb-3 d-block"></i>
+        <h4 class="fw-bold">No Projects Found</h4>
+        <p class="text-muted">Create your first project to begin managing tasks.</p>
+      </div>
     </div>
-
   <% } %>
-
 </div>
 
 <!-- Create Project Modal -->

@@ -645,6 +645,40 @@ async getProjectMembers(
     });
   }
 
+  @Get('/profile')
+  async profilePage(
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const user = (req as any).res.locals.user;
+    if (!user) return res.redirect('/login');
+
+    try {
+      const fullUser = await this.usersService.findById(user.id);
+      return res.render('profile/index', {
+        title: 'Profile',
+        user: fullUser,
+      });
+    } catch (error) {
+      console.error('Profile Page Error:', error);
+      return res.redirect('/?error=' + encodeURIComponent(error.message));
+    }
+  }
+
+  @Get('/settings')
+  async settingsPage(
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const user = (req as any).res.locals.user;
+    if (!user) return res.redirect('/login');
+
+    return res.render('settings/index', {
+      title: 'Settings',
+      user,
+    });
+  }
+
   /*
   ===========================================
   FILE UPLOAD

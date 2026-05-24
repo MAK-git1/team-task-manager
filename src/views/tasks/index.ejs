@@ -1,452 +1,682 @@
 <% const errorMsg = (typeof locals.error !== 'undefined' && locals.error) ? locals.error : null; %>
 <% const successMsg = (typeof locals.success !== 'undefined' && locals.success) ? locals.success : null; %>
 
+<% 
+  // Pre-calculate workspace statistics metrics
+  const totalCount = tasks.length;
+  const todoCount = tasks.filter(t => t.status === 'TODO').length;
+  const inProgressCount = tasks.filter(t => t.status === 'IN_PROGRESS').length;
+  const doneCount = tasks.filter(t => t.status === 'DONE').length;
+  const overdueCount = tasks.filter(t => new Date(t.dueDate) < new Date() && t.status !== 'DONE').length;
+%>
+
+<!-- Alerts & Banners Section -->
 <% if (errorMsg) { %>
-  <div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <i class="bi bi-exclamation-triangle me-2"></i><%= errorMsg %>
+  <div class="alert alert-danger alert-dismissible border-0 shadow-sm fade show mb-4" role="alert" style="border-radius: 16px; background: rgba(239, 68, 68, 0.08); color: #ef4444; font-weight: 600; padding: 16px 20px;">
+    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i><%= errorMsg %>
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
   </div>
 <% } %>
 <% if (successMsg) { %>
-  <div class="alert alert-success alert-dismissible fade show" role="alert">
-    <i class="bi bi-check-circle me-2"></i><%= successMsg %>
+  <div class="alert alert-success alert-dismissible border-0 shadow-sm fade show mb-4" role="alert" style="border-radius: 16px; background: rgba(16, 185, 129, 0.08); color: #10b981; font-weight: 600; padding: 16px 20px;">
+    <i class="bi bi-check-circle-fill me-2 fs-5"></i><%= successMsg %>
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
   </div>
 <% } %>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-
+<!-- Dynamic Header Workspace -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
   <div>
-
-    <h2 class="dashboard-title">
-      Tasks
-    </h2>
-
-    <p class="dashboard-subtitle">
-      Manage and track project tasks.
-    </p>
-
+    <h2 class="dashboard-title text-gradient mb-1" style="font-size: 1.85rem; font-weight: 800; letter-spacing: -0.8px;">Tasks Workspace</h2>
+    <p class="dashboard-subtitle m-0" style="font-size: 0.9rem; color: var(--text-muted);">Manage, organize, and filter your team's project deliverables in real time.</p>
   </div>
-
   <% if (locals.user && locals.user.role === 'ADMIN') { %>
-    <button
-      class="btn btn-primary"
-      data-bs-toggle="modal"
-      data-bs-target="#createTaskModal"
-    >
-      <i class="bi bi-plus-lg"></i>
-      Create Task
+    <button class="btn btn-primary-modern rounded-pill px-4 shadow-sm d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createTaskModal" style="height: 46px;">
+      <i class="bi bi-plus-lg fs-5"></i> Create Task
     </button>
   <% } %>
-
 </div>
 
-<!-- Tasks Table -->
+<!-- Metrics Cards Strip -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-card-modern stat-card-primary">
+      <div class="stat-info">
+        <span class="stat-label">Total Tasks</span>
+        <span class="stat-value"><%= totalCount %></span>
+      </div>
+      <div class="stat-icon-wrapper">
+        <i class="bi bi-list-task"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card-modern stat-card-warning">
+      <div class="stat-info">
+        <span class="stat-label">Todo</span>
+        <span class="stat-value"><%= todoCount %></span>
+      </div>
+      <div class="stat-icon-wrapper">
+        <i class="bi bi-clock-history"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card-modern stat-card-success">
+      <div class="stat-info">
+        <span class="stat-label">Completed</span>
+        <span class="stat-value"><%= doneCount %></span>
+      </div>
+      <div class="stat-icon-wrapper">
+        <i class="bi bi-check2-circle"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card-modern stat-card-danger">
+      <div class="stat-info">
+        <span class="stat-label">Overdue</span>
+        <span class="stat-value text-danger"><%= overdueCount %></span>
+      </div>
+      <div class="stat-icon-wrapper">
+        <i class="bi bi-exclamation-octagon"></i>
+      </div>
+    </div>
+  </div>
+</div>
 
-<div class="dashboard-card">
+<!-- Search & Filters Control Center -->
+<div class="dashboard-panel-card p-3 mb-4 shadow-sm border border-opacity-10" style="border-radius: 20px;">
+  <div class="row g-3 align-items-center">
+    <!-- Real-time Text Search -->
+    <div class="col-lg-4 col-md-12">
+      <div class="input-group">
+        <span class="input-group-text bg-transparent border-end-0 text-muted" style="border: 1.5px solid var(--border-color); border-radius: 12px 0 0 12px; padding: 10px 14px;">
+          <i class="bi bi-search"></i>
+        </span>
+        <input type="text" id="taskSearch" class="form-control border-start-0" placeholder="Search tasks by title or desc..." style="border: 1.5px solid var(--border-color); border-radius: 0 12px 12px 0; padding: 10px 16px; background: var(--bg-color); color: var(--text-main);">
+      </div>
+    </div>
+    
+    <!-- Status Interactive Filters -->
+    <div class="col-lg-5 col-md-7 col-sm-12">
+      <div class="d-flex flex-wrap gap-2 align-items-center" id="statusFilterGroup">
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 filter-pill active" data-status="ALL" style="font-size: 0.8rem; font-weight: 600;">All</button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 filter-pill" data-status="TODO" style="font-size: 0.8rem; font-weight: 600;">📋 Todo</button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 filter-pill" data-status="IN_PROGRESS" style="font-size: 0.8rem; font-weight: 600;">🔄 In Progress</button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 filter-pill" data-status="DONE" style="font-size: 0.8rem; font-weight: 600;">✅ Done</button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 filter-pill" data-status="OVERDUE" style="font-size: 0.8rem; font-weight: 600;">⚠️ Overdue</button>
+      </div>
+    </div>
+    
+    <!-- Priority Filter Selector -->
+    <div class="col-lg-2 col-md-3 col-sm-8">
+      <select id="priorityFilter" class="form-select rounded-3" style="padding: 10px 16px; border: 1.5px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-weight: 600; font-size: 0.85rem;">
+        <option value="ALL">⚡ All Priorities</option>
+        <option value="LOW">🟦 LOW</option>
+        <option value="MEDIUM">🟨 MEDIUM</option>
+        <option value="HIGH">🟥 HIGH</option>
+      </select>
+    </div>
+    
+    <!-- View Switcher -->
+    <div class="col-lg-1 col-md-2 col-sm-4 text-end">
+      <div class="btn-group border p-1 rounded-3 d-inline-flex" style="background: rgba(0, 0, 0, 0.02); border-color: var(--border-color) !important;">
+        <button id="viewToggleTable" class="btn btn-sm p-1.5 rounded-2 d-flex align-items-center justify-content-center active" style="width: 34px; height: 34px; border: none;" title="Table View">
+          <i class="bi bi-list-task fs-5"></i>
+        </button>
+        <button id="viewToggleGrid" class="btn btn-sm p-1.5 rounded-2 d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; border: none;" title="Grid Card View">
+          <i class="bi bi-grid-3x3-gap-fill fs-5"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
+<!-- ==========================================
+      1. TABLE VIEW LAYOUT
+     ========================================== -->
+<div class="modern-table-card shadow-sm mb-4" id="tableViewContainer" style="border-radius: 24px; padding: 24px;">
   <div class="table-responsive">
-
-    <table class="table modern-table">
-
+    <table class="table modern-table mb-0 align-middle">
       <thead>
-
         <tr>
-          <th>Task</th>
-          <th>Project</th>
-          <th>Assigned To</th>
-          <th>Created By</th>
-          <th>Status</th>
-          <th>Priority</th>
-          <th>Due Date</th>
-          <th>Actions</th>
+          <th style="font-weight: 700; font-size: 0.8rem;">TASK DETAILS</th>
+          <th style="font-weight: 700; font-size: 0.8rem;">PROJECT</th>
+          <th style="font-weight: 700; font-size: 0.8rem;">ASSIGNED MEMBER</th>
+          <th style="font-weight: 700; font-size: 0.8rem;">STATUS</th>
+          <th style="font-weight: 700; font-size: 0.8rem;">PRIORITY</th>
+          <th style="font-weight: 700; font-size: 0.8rem;">DUE DATE</th>
+          <th class="text-end" style="font-weight: 700; font-size: 0.8rem; padding-right: 20px;">ACTIONS</th>
         </tr>
-
       </thead>
-
-      <tbody>
-
+      <tbody id="tableTasksBody">
         <% if (tasks.length > 0) { %>
-
           <% tasks.forEach(task => { %>
-
-            <tr class="
-              <%= new Date(task.dueDate) < new Date()
-              && task.status !== 'DONE'
-              ? 'overdue-row'
-              : '' %>
-            ">
-
+            <tr class="task-table-row <%= new Date(task.dueDate) < new Date() && task.status !== 'DONE' ? 'overdue-row-modern' : '' %>"
+                data-status="<%= task.status %>"
+                data-priority="<%= task.priority %>"
+                data-title="<%= task.title.toLowerCase() %>"
+                data-desc="<%= (task.description || '').toLowerCase() %>"
+                data-overdue="<%= new Date(task.dueDate) < new Date() && task.status !== 'DONE' ? 'true' : 'false' %>">
               <td>
-                <strong>
-                  <%= task.title %>
-                </strong>
+                <div class="fw-bold text-main" style="font-size: 0.92rem;"><%= task.title %></div>
                 <% if (task.description) { %>
-                  <div class="text-muted" style="font-size:12px; margin-top:2px;"><%= task.description %></div>
+                  <div class="text-muted small mt-1 text-truncate" style="max-width: 280px; font-size: 0.78rem;" title="<%= task.description %>">
+                    <%= task.description %>
+                  </div>
                 <% } %>
               </td>
-
               <td>
-                <%= task.project ? task.project.name : 'N/A' %>
+                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2.5 py-1 rounded-pill" style="font-size: 0.7rem; font-weight: 700;">
+                  <%= task.project ? task.project.name : 'N/A' %>
+                </span>
               </td>
-
               <td>
-                <div class="d-flex align-items-center gap-2">
-                  <div class="member-avatar" style="width:32px;height:32px;font-size:12px;">
+                <div class="d-flex align-items-center gap-2.5">
+                  <div class="d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" 
+                       style="width: 30px; height: 30px; border-radius: 50%; font-size: 0.82rem; background: linear-gradient(135deg, #6366f1, #8b5cf6);">
                     <%= task.assignedTo ? task.assignedTo.name.charAt(0).toUpperCase() : '?' %>
                   </div>
-                  <%= task.assignedTo ? task.assignedTo.name : 'Unassigned' %>
+                  <span class="text-main fw-semibold" style="font-size: 0.82rem;"><%= task.assignedTo ? task.assignedTo.name : 'Unassigned' %></span>
                 </div>
               </td>
-
               <td>
-                <div class="d-flex align-items-center gap-2">
-                  <div class="member-avatar" style="width:32px;height:32px;font-size:12px;background:var(--accent-secondary,#6366f1);">
-                    <%= task.createdBy ? task.createdBy.name.charAt(0).toUpperCase() : '?' %>
-                  </div>
-                  <%= task.createdBy ? task.createdBy.name : 'N/A' %>
-                </div>
-              </td>
-
-              <td>
-
-                <span class="
-                  badge
-                  status-badge
+                <span class="badge status-badge <%= task.status %>" style="font-size: 0.72rem;">
                   <%= task.status %>
-                ">
-
-                  <%= task.status %>
-
                 </span>
-
               </td>
-
               <td>
-
-                <span class="
-                  badge
-                  priority-badge
+                <span class="badge priority-badge <%= task.priority %>" style="font-size: 0.72rem;">
                   <%= task.priority %>
-                ">
-
-                  <%= task.priority %>
-
                 </span>
-
               </td>
-
-              <td>
-
-                <%= new Date(task.dueDate).toLocaleDateString() %>
+              <td class="recent-task-date-cell fw-semibold" style="font-size: 0.82rem;">
+                <i class="bi bi-calendar3 me-1 text-muted"></i><%= new Date(task.dueDate).toLocaleDateString() %>
                 <% if (new Date(task.dueDate) < new Date() && task.status !== 'DONE') { %>
-                  <span class="badge bg-danger ms-1" style="font-size:10px;">OVERDUE</span>
+                  <span class="badge bg-danger-subtle text-danger border border-danger-subtle ms-1 px-1.5 py-0.5 rounded-pill" style="font-size: 0.6rem; font-weight: 700;">OVERDUE</span>
                 <% } %>
-
               </td>
-
               <td>
-
                 <% const canUpdate = locals.user && (locals.user.role === 'ADMIN' || (task.assignedTo && String(task.assignedTo.id) === String(locals.user.id))); %>
-
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                  <a href="/tasks/<%= task.id %>" class="btn btn-sm btn-outline-primary" title="View Task Details">
-                    <i class="bi bi-eye"></i>
+                <div class="d-flex align-items-center justify-content-end gap-2">
+                  <a href="/tasks/<%= task.id %>" class="btn btn-sm btn-outline-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; padding: 0;" title="View Details">
+                    <i class="bi bi-eye-fill"></i>
                   </a>
-
                   <% if (canUpdate) { %>
-                    <form
-                      action="/tasks/<%= task.id %>/status"
-                      method="POST"
-                      class="d-flex align-items-center gap-1"
-                    >
-                      <select
-                        name="status"
-                        class="form-select form-select-sm"
-                        style="min-width:120px;"
-                      >
+                    <form action="/tasks/<%= task.id %>/status" method="POST" class="d-flex align-items-center gap-1.5 m-0">
+                      <select name="status" class="form-select form-select-sm rounded-pill" style="min-width:115px; font-size: 0.72rem; padding: 4px 8px; border-color: var(--border-color);">
                         <option value="TODO" <%= task.status === 'TODO' ? 'selected' : '' %>>📋 TODO</option>
                         <option value="IN_PROGRESS" <%= task.status === 'IN_PROGRESS' ? 'selected' : '' %>>🔄 IN PROGRESS</option>
                         <option value="DONE" <%= task.status === 'DONE' ? 'selected' : '' %>>✅ DONE</option>
                       </select>
-                      <button type="submit" class="btn btn-sm btn-primary" title="Save Status">
-                        Save
-                      </button>
+                      <button type="submit" class="btn btn-sm btn-primary rounded-pill px-2.5 py-1" style="font-size: 0.72rem;">Save</button>
                     </form>
-                  <% } else { %>
-                    <span class="text-muted" style="font-size:12px;">View Only</span>
                   <% } %>
-
                   <% if (locals.user && locals.user.role === 'ADMIN') { %>
-                    <form
-                      action="/tasks/<%= task.id %>/delete"
-                      method="POST"
-                      onsubmit="return confirmAction('Are you sure you want to delete this task?')"
-                    >
-                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Task">
-                        <i class="bi bi-trash"></i>
+                    <form action="/tasks/<%= task.id %>/delete" method="POST" onsubmit="return confirmAction('Are you sure you want to delete this task?')" class="m-0">
+                      <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; padding: 0;" title="Delete Task">
+                        <i class="bi bi-trash-fill"></i>
                       </button>
                     </form>
                   <% } %>
                 </div>
-
               </td>
-
-
             </tr>
-
           <% }) %>
-
         <% } else { %>
-
-          <tr>
-
-            <td colspan="8">
-
-              <div class="empty-state py-5">
-
-                <i class="bi bi-list-task"></i>
-
-                <h4>
-                  No Tasks Found
-                </h4>
-
-                <p>
-                  <% if (locals.user && locals.user.role === 'ADMIN') { %>
-                    Click "Create Task" to add your first task.
-                  <% } else { %>
-                    No tasks have been assigned to you yet.
-                  <% } %>
-                </p>
-
-              </div>
-
+          <tr id="tableEmptyRow">
+            <td colspan="7" class="text-center text-muted py-5">
+              <i class="bi bi-list-task text-muted fs-1 mb-2 d-block"></i>
+              <h5 class="fw-bold">No Tasks Found</h5>
+              <p class="small text-muted mb-0">No tasks have been initialized yet in the workspace.</p>
             </td>
-
           </tr>
-
         <% } %>
-
       </tbody>
-
     </table>
-
   </div>
-
 </div>
 
-<!-- Create Task Modal (Admin Only) -->
+<!-- ==========================================
+      2. CARD GRID VIEW LAYOUT
+     ========================================== -->
+<div class="row g-4 d-none" id="gridViewContainer">
+  <% if (tasks.length > 0) { %>
+    <% tasks.forEach(task => { %>
+      <div class="col-md-6 col-lg-4 task-card-item" 
+           data-status="<%= task.status %>"
+           data-priority="<%= task.priority %>"
+           data-title="<%= task.title.toLowerCase() %>"
+           data-desc="<%= (task.description || '').toLowerCase() %>"
+           data-overdue="<%= new Date(task.dueDate) < new Date() && task.status !== 'DONE' ? 'true' : 'false' %>">
+        
+        <div class="project-card-modern position-relative h-100 p-4 border-left-priority-<%= task.priority %>" 
+             style="border-left: 5px solid; border-radius: 20px; transition: all 0.3s ease;">
+          
+          <!-- Header Tag Block -->
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2.5 py-1 rounded-pill" style="font-size: 0.7rem; font-weight: 700;">
+              <%= task.project ? task.project.name : 'N/A' %>
+            </span>
+            <span class="badge priority-badge <%= task.priority %>" style="font-size: 0.68rem;">
+              <%= task.priority %>
+            </span>
+          </div>
 
+          <!-- Title Details -->
+          <div class="mb-4">
+            <h5 class="fw-bold text-main text-truncate mb-2" style="font-size: 1.05rem;" title="<%= task.title %>">
+              <%= task.title %>
+            </h5>
+            <p class="text-muted small mb-0" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 38px; line-height: 1.5; font-size: 0.8rem;">
+              <%= task.description || 'No description provided.' %>
+            </p>
+          </div>
+
+          <!-- Status / Schedule Row -->
+          <div class="d-flex justify-content-between align-items-center mb-3.5">
+            <span class="badge status-badge <%= task.status %>" style="font-size: 0.7rem;">
+              <%= task.status %>
+            </span>
+            <div class="text-muted fw-semibold" style="font-size: 0.75rem;">
+              <i class="bi bi-calendar3 me-1"></i><%= new Date(task.dueDate).toLocaleDateString() %>
+              <% if (new Date(task.dueDate) < new Date() && task.status !== 'DONE') { %>
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle ms-1 px-1.5 py-0.5 rounded-pill" style="font-size: 0.58rem; font-weight: 700;">OVERDUE</span>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- Bottom Meta & Quick Actions -->
+          <div class="d-flex justify-content-between align-items-center pt-3 border-top border-opacity-10" style="border-color: var(--border-color) !important;">
+            <div class="d-flex align-items-center gap-2">
+              <div class="d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" 
+                   style="width: 28px; height: 28px; border-radius: 50%; font-size: 0.78rem; background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+                <%= task.assignedTo ? task.assignedTo.name.charAt(0).toUpperCase() : '?' %>
+              </div>
+              <span style="font-size: 0.8rem; font-weight: 600;" class="text-main"><%= task.assignedTo ? task.assignedTo.name : 'Unassigned' %></span>
+            </div>
+
+            <div class="d-flex align-items-center gap-1.5">
+              <a href="/tasks/<%= task.id %>" class="btn btn-sm btn-outline-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; padding: 0;" title="View Details">
+                <i class="bi bi-eye-fill" style="font-size: 0.82rem;"></i>
+              </a>
+              <% if (locals.user && locals.user.role === 'ADMIN') { %>
+                <form action="/tasks/<%= task.id %>/delete" method="POST" onsubmit="return confirmAction('Are you sure you want to delete this task?')" class="m-0">
+                  <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; padding: 0;" title="Delete Task">
+                    <i class="bi bi-trash-fill" style="font-size: 0.82rem;"></i>
+                  </button>
+                </form>
+              <% } %>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    <% }) %>
+  <% } %>
+  
+  <!-- Empty placeholder for Grid view -->
+  <div id="gridEmptyPlaceholder" class="col-12 text-center text-muted py-5 d-none">
+    <i class="bi bi-grid text-muted fs-1 mb-2 d-block"></i>
+    <h5 class="fw-bold">No Match Found</h5>
+    <p class="small text-muted mb-0">Try adjusting your search query or filter tags.</p>
+  </div>
+</div>
+
+<!-- Dynamic Empty Global Workspace Placeholder -->
+<div id="globalEmptyPlaceholder" class="text-center py-5 text-muted d-none">
+  <i class="bi bi-search text-muted fs-1 mb-2 d-block"></i>
+  <h5 class="fw-bold">No Matching Tasks</h5>
+  <p class="small text-muted mb-0">No active deliverables match your current filter parameters.</p>
+</div>
+
+<!-- ==========================================
+      3. CREATE TASK MODAL (ADMIN ONLY)
+     ========================================== -->
 <% if (locals.user && locals.user.role === 'ADMIN') { %>
-
-<div
-  class="modal fade"
-  id="createTaskModal"
-  tabindex="-1"
->
-
-  <div class="modal-dialog modal-lg">
-
-    <div class="modal-content modern-modal">
-
-      <div class="modal-header">
-
-        <h5 class="modal-title">
-          Create Task
-        </h5>
-
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-        ></button>
-
+<div class="modal fade" id="createTaskModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content modern-modal p-3 shadow-lg" style="border-radius: 24px; background: var(--card-bg); border: 1px solid var(--border-color);">
+      
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold text-gradient" style="font-size: 1.4rem; letter-spacing: -0.5px;">Create New Task</h5>
+        <button type="button" class="btn-close rounded-circle" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
-      <form
-        action="/tasks/create"
-        method="POST"
-        id="createTaskForm"
-      >
-
-        <div class="modal-body">
-
-          <div class="row">
-
-            <div class="col-md-6 mb-3">
-
-              <label class="form-label fw-semibold">
-                Task Title <span class="text-danger">*</span>
-              </label>
-
-              <input
-                type="text"
-                name="title"
-                class="form-control"
-                placeholder="Enter task title"
-                required
-              />
-
+      <form action="/tasks/create" method="POST" id="createTaskForm">
+        <div class="modal-body py-4">
+          <div class="row g-3">
+            
+            <!-- Task Title -->
+            <div class="col-md-6 mb-2">
+              <label class="form-label small fw-bold text-muted text-uppercase mb-2" style="letter-spacing: 0.5px;">Task Title <span class="text-danger">*</span></label>
+              <input type="text" name="title" class="form-control rounded-3" placeholder="Enter task title" required style="padding: 11px 16px; border: 1.5px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 0.9rem;">
             </div>
 
-            <div class="col-md-6 mb-3">
-
-              <label class="form-label fw-semibold">
-                Project <span class="text-danger">*</span>
-              </label>
-
-              <select
-                name="projectId"
-                class="form-select"
-                id="projectSelect"
-                required
-              >
+            <!-- Project Selection -->
+            <div class="col-md-6 mb-2">
+              <label class="form-label small fw-bold text-muted text-uppercase mb-2" style="letter-spacing: 0.5px;">Project Workspace <span class="text-danger">*</span></label>
+              <select name="projectId" class="form-select rounded-3" id="projectSelect" required style="padding: 11px 16px; border: 1.5px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 0.9rem; font-weight: 600;">
                 <option value="" disabled selected>-- Select a project --</option>
-
                 <% projects.forEach(project => { %>
-
-                  <option
-                    value="<%= project.id %>"
-                  >
-                    <%= project.name %>
-                  </option>
-
+                  <option value="<%= project.id %>"><%= project.name %></option>
                 <% }) %>
-
               </select>
-
             </div>
 
           </div>
 
-          <div class="mb-3">
-
-            <label class="form-label fw-semibold">
-              Description
-            </label>
-
-            <textarea
-              name="description"
-              rows="3"
-              class="form-control"
-              placeholder="Optional task description..."
-            ></textarea>
-
+          <!-- Description -->
+          <div class="mb-4 mt-2">
+            <label class="form-label small fw-bold text-muted text-uppercase mb-2" style="letter-spacing: 0.5px;">Task Description</label>
+            <textarea name="description" rows="3" class="form-control rounded-3" placeholder="Describe the task details, goals, or specifications..." style="padding: 11px 16px; border: 1.5px solid var(--border-color); background: var(--bg-color); color: var(--text-main); resize: vertical; font-size: 0.9rem;"></textarea>
           </div>
 
-          <div class="row">
+          <div class="row g-3">
 
-            <div class="col-md-4 mb-3">
-
-              <label class="form-label fw-semibold">
-                Priority
-              </label>
-
-              <select
-                name="priority"
-                class="form-select"
-              >
-
+            <!-- Priority -->
+            <div class="col-md-4 mb-2">
+              <label class="form-label small fw-bold text-muted text-uppercase mb-2" style="letter-spacing: 0.5px;">Priority Level</label>
+              <select name="priority" class="form-select rounded-3" style="padding: 11px 16px; border: 1.5px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 0.9rem; font-weight: 600;">
                 <option value="LOW">🟦 LOW</option>
                 <option value="MEDIUM" selected>🟨 MEDIUM</option>
                 <option value="HIGH">🟥 HIGH</option>
-
               </select>
-
             </div>
 
-            <div class="col-md-4 mb-3">
-
-              <label class="form-label fw-semibold">
-                Assign To <span class="text-danger">*</span>
-              </label>
-
-              <select
-                name="assignedToUserId"
-                class="form-select"
-                id="assigneeSelect"
-                required
-              >
-                <option value="" disabled selected>-- Select a member --</option>
+            <!-- Assign To -->
+            <div class="col-md-4 mb-2">
+              <label class="form-label small fw-bold text-muted text-uppercase mb-2" style="letter-spacing: 0.5px;">Assign To Member <span class="text-danger">*</span></label>
+              <select name="assignedToUserId" class="form-select rounded-3" id="assigneeSelect" required style="padding: 11px 16px; border: 1.5px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 0.9rem; font-weight: 600;">
+                <option value="" disabled selected>-- Select project first --</option>
                 <% users.forEach(u => { %>
                   <option value="<%= u.id %>"><%= u.name %> (<%= u.email %>)</option>
                 <% }) %>
               </select>
-
-              <small class="text-muted">Users selected will be automatically added to the project if not already a member.</small>
-
             </div>
 
-            <div class="col-md-4 mb-3">
-
-              <label class="form-label fw-semibold">
-                Due Date <span class="text-danger">*</span>
-              </label>
-
-              <input
-                type="date"
-                name="dueDate"
-                class="form-control"
-                required
-                min="<%= new Date().toISOString().split('T')[0] %>"
-              />
-
+            <!-- Due Date -->
+            <div class="col-md-4 mb-2">
+              <label class="form-label small fw-bold text-muted text-uppercase mb-2" style="letter-spacing: 0.5px;">Due Date <span class="text-danger">*</span></label>
+              <input type="date" name="dueDate" class="form-control rounded-3" required min="<%= new Date().toISOString().split('T')[0] %>" style="padding: 11px 16px; border: 1.5px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 0.9rem;">
             </div>
 
           </div>
 
+          <!-- Note Block -->
+          <div class="alert mt-4 mb-0 border-0 d-flex align-items-center gap-2.5 shadow-sm" style="background: rgba(99, 102, 241, 0.05); border-radius: 12px; font-size: 0.8rem; padding: 12px 16px;">
+            <i class="bi bi-info-circle-fill text-primary fs-5"></i>
+            <span class="text-muted fw-semibold">Users assigned to tasks will be automatically granted member access to the project workspace if not already assigned.</span>
+          </div>
+
         </div>
 
-        <div class="modal-footer">
-
-          <button
-            type="button"
-            class="btn btn-outline-secondary"
-            data-bs-dismiss="modal"
-          >
-            Cancel
+        <!-- Footer Actions -->
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold" data-bs-dismiss="modal" style="font-size: 0.85rem;">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm d-flex align-items-center gap-1.5" id="submitTaskBtn" style="font-size: 0.85rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none;">
+            <i class="bi bi-plus-lg"></i> Create Task
           </button>
-
-          <button
-            type="submit"
-            class="btn btn-primary"
-            id="submitTaskBtn"
-          >
-            <i class="bi bi-plus-lg me-1"></i>Create Task
-          </button>
-
         </div>
 
       </form>
 
     </div>
-
   </div>
-
 </div>
-
 <% } %>
 
+<!-- ==========================================
+      4. SCRIPTS AND EVENT LISTENERS
+     ========================================== -->
 <script>
-// Read query params and show alerts via JS (for redirect-based flash messages)
-const urlParams = new URLSearchParams(window.location.search);
-const pageError = urlParams.get('error');
-const pageSuccess = urlParams.get('success');
+document.addEventListener('DOMContentLoaded', () => {
+  
+  // ==========================================
+  // VIEW MODE TOGGLE (TABLE VS CARD GRID)
+  // ==========================================
+  const viewToggleTable = document.getElementById('viewToggleTable');
+  const viewToggleGrid = document.getElementById('viewToggleGrid');
+  const tableViewContainer = document.getElementById('tableViewContainer');
+  const gridViewContainer = document.getElementById('gridViewContainer');
 
-if (pageError && !document.querySelector('.alert-danger')) {
-  const mainContent = document.querySelector('.main-content') || document.body;
-  const el = document.createElement('div');
-  el.className = 'alert alert-danger alert-dismissible fade show';
-  el.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>' + decodeURIComponent(pageError) + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
-  mainContent.prepend(el);
-}
-if (pageSuccess && !document.querySelector('.alert-success')) {
-  const mainContent = document.querySelector('.main-content') || document.body;
-  const el = document.createElement('div');
-  el.className = 'alert alert-success alert-dismissible fade show';
-  el.innerHTML = '<i class="bi bi-check-circle me-2"></i>' + decodeURIComponent(pageSuccess) + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
-  mainContent.prepend(el);
-}
+  // Load user preference
+  const savedViewMode = localStorage.getItem('tasks-view-mode') || 'table';
+  setViewMode(savedViewMode);
 
+  if (viewToggleTable && viewToggleGrid) {
+    viewToggleTable.addEventListener('click', () => setViewMode('table'));
+    viewToggleGrid.addEventListener('click', () => setViewMode('grid'));
+  }
+
+  function setViewMode(mode) {
+    localStorage.setItem('tasks-view-mode', mode);
+    if (mode === 'grid') {
+      viewToggleGrid.classList.add('active');
+      viewToggleTable.classList.remove('active');
+      tableViewContainer.classList.add('d-none');
+      gridViewContainer.classList.remove('d-none');
+    } else {
+      viewToggleTable.classList.add('active');
+      viewToggleGrid.classList.remove('active');
+      tableViewContainer.classList.remove('d-none');
+      gridViewContainer.classList.add('d-none');
+    }
+    filterTasks(); // Recheck empty states based on active view mode
+  }
+
+  // ==========================================
+  // REAL-TIME CLIENT-SIDE SEARCH & FILTERS
+  // ==========================================
+  const taskSearch = document.getElementById('taskSearch');
+  const priorityFilter = document.getElementById('priorityFilter');
+  const statusFilterPills = document.querySelectorAll('#statusFilterGroup .filter-pill');
+  
+  let activeStatus = 'ALL';
+
+  if (taskSearch) taskSearch.addEventListener('input', filterTasks);
+  if (priorityFilter) priorityFilter.addEventListener('change', filterTasks);
+
+  statusFilterPills.forEach(pill => {
+    pill.addEventListener('click', (e) => {
+      statusFilterPills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      activeStatus = pill.getAttribute('data-status');
+      filterTasks();
+    });
+  });
+
+  function filterTasks() {
+    const query = taskSearch ? taskSearch.value.toLowerCase().trim() : '';
+    const priority = priorityFilter ? priorityFilter.value : 'ALL';
+
+    // Filter Table Rows
+    const tableRows = document.querySelectorAll('.task-table-row');
+    let visibleTableCount = 0;
+    tableRows.forEach(row => {
+      const match = matchesFilters(row, query, activeStatus, priority);
+      if (match) {
+        row.classList.remove('d-none');
+        visibleTableCount++;
+      } else {
+        row.classList.add('d-none');
+      }
+    });
+
+    // Filter Grid Cards
+    const gridCards = document.querySelectorAll('.task-card-item');
+    let visibleGridCount = 0;
+    gridCards.forEach(card => {
+      const match = matchesFilters(card, query, activeStatus, priority);
+      if (match) {
+        card.classList.remove('d-none');
+        visibleGridCount++;
+      } else {
+        card.classList.add('d-none');
+      }
+    });
+
+    // Manage Empty States
+    const activeMode = localStorage.getItem('tasks-view-mode') || 'table';
+    const globalEmpty = document.getElementById('globalEmptyPlaceholder');
+    const tableEmptyRow = document.getElementById('tableEmptyRow');
+    const gridEmpty = document.getElementById('gridEmptyPlaceholder');
+
+    // Reset visibility
+    if (globalEmpty) globalEmpty.classList.add('d-none');
+    if (tableEmptyRow) tableEmptyRow.classList.add('d-none');
+    if (gridEmpty) gridEmpty.classList.add('d-none');
+
+    if (activeMode === 'table') {
+      if (visibleTableCount === 0) {
+        if (tableRows.length > 0) {
+          if (globalEmpty) globalEmpty.classList.remove('d-none');
+        } else {
+          if (tableEmptyRow) tableEmptyRow.classList.remove('d-none');
+        }
+      }
+    } else {
+      if (visibleGridCount === 0) {
+        if (gridCards.length > 0) {
+          if (gridEmpty) gridEmpty.classList.remove('d-none');
+        } else {
+          if (gridEmpty) gridEmpty.classList.remove('d-none');
+        }
+      }
+    }
+  }
+
+  function matchesFilters(element, query, status, priority) {
+    const taskStatus = element.getAttribute('data-status');
+    const taskPriority = element.getAttribute('data-priority');
+    const taskTitle = element.getAttribute('data-title');
+    const taskDesc = element.getAttribute('data-desc');
+    const taskOverdue = element.getAttribute('data-overdue') === 'true';
+
+    // 1. Text Search matching
+    if (query && !taskTitle.includes(query) && !taskDesc.includes(query)) {
+      return false;
+    }
+
+    // 2. Status matching
+    if (status !== 'ALL') {
+      if (status === 'OVERDUE') {
+        if (!taskOverdue) return false;
+      } else {
+        if (taskStatus !== status) return false;
+      }
+    }
+
+    // 3. Priority matching
+    if (priority !== 'ALL' && taskPriority !== priority) {
+      return false;
+    }
+
+    return true;
+  }
+
+  // ==========================================
+  // DYNAMIC ASSIGNEE DROP-DOWN BINDING
+  // ==========================================
+  const projectSelect = document.getElementById('projectSelect');
+  if (projectSelect) {
+    projectSelect.addEventListener('change', (e) => {
+      if (typeof loadProjectMembers === 'function') {
+        loadProjectMembers(e.target.value);
+      }
+    });
+  }
+
+  // URL Alert handling overrides
+  const urlParams = new URLSearchParams(window.location.search);
+  const pageError = urlParams.get('error');
+  const pageSuccess = urlParams.get('success');
+
+  if (pageError && !document.querySelector('.alert-danger')) {
+    const mainContent = document.querySelector('.main-content') || document.body;
+    const el = document.createElement('div');
+    el.className = 'alert alert-danger alert-dismissible border-0 shadow-sm fade show mb-4';
+    el.style.borderRadius = '16px';
+    el.style.background = 'rgba(239, 68, 68, 0.08)';
+    el.style.color = '#ef4444';
+    el.style.fontWeight = '600';
+    el.style.padding = '16px 20px';
+    el.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>' + decodeURIComponent(pageError) + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+    mainContent.prepend(el);
+  }
+  if (pageSuccess && !document.querySelector('.alert-success')) {
+    const mainContent = document.querySelector('.main-content') || document.body;
+    const el = document.createElement('div');
+    el.className = 'alert alert-success alert-dismissible border-0 shadow-sm fade show mb-4';
+    el.style.borderRadius = '16px';
+    el.style.background = 'rgba(16, 185, 129, 0.08)';
+    el.style.color = '#10b981';
+    el.style.fontWeight = '600';
+    el.style.padding = '16px 20px';
+    el.innerHTML = '<i class="bi bi-check-circle-fill me-2 fs-5"></i>' + decodeURIComponent(pageSuccess) + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+    mainContent.prepend(el);
+  }
 });
 </script>
+
+<style>
+/* CSS Priorities Accents for Cards Grid */
+.border-left-priority-HIGH {
+  border-left-color: #f43f5e !important; /* Rose accent */
+}
+.border-left-priority-MEDIUM {
+  border-left-color: #f59e0b !important; /* Amber accent */
+}
+.border-left-priority-LOW {
+  border-left-color: #0ea5e9 !important; /* Sky accent */
+}
+
+/* Glass table overrides */
+.overdue-row-modern {
+  background: rgba(244, 63, 94, 0.02) !important;
+}
+.overdue-row-modern td {
+  color: #f43f5e !important;
+}
+
+/* View switcher button styles */
+#viewToggleTable, #viewToggleGrid {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  transition: all 0.2s ease;
+}
+#viewToggleTable.active, #viewToggleGrid.active {
+  background: var(--card-bg) !important;
+  color: #6366f1 !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+}
+
+/* Status Filter custom behavior */
+.filter-pill {
+  transition: all 0.25s ease;
+  border-color: var(--border-color) !important;
+  color: var(--text-muted) !important;
+}
+.filter-pill:hover {
+  background: rgba(99, 102, 241, 0.04) !important;
+  color: #6366f1 !important;
+  border-color: rgba(99, 102, 241, 0.2) !important;
+}
+.filter-pill.active {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+  color: white !important;
+  border-color: transparent !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2) !important;
+}
+
+/* Animated transitions for filtering */
+.task-table-row, .task-card-item {
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>

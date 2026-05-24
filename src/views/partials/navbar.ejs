@@ -1,28 +1,59 @@
-<nav class="top-navbar">
+<nav class="top-navbar d-flex justify-content-between align-items-center px-4 py-3">
 
-  <div class="d-flex align-items-center gap-3">
-    <button
-      class="mobile-menu-btn"
-      onclick="toggleSidebar()"
-    >
-      <i class="bi bi-list"></i>
-    </button>
+  <div class="d-flex align-items-center gap-4">
+    <div class="d-flex align-items-center gap-2">
+      <div class="brand-logo-small">
+        <i class="bi bi-layers-half"></i>
+      </div>
+      <h4 class="page-title text-gradient m-0 fw-bold">
+        Task Manager
+      </h4>
+    </div>
 
-    <h4 class="page-title text-gradient m-0">
-      Task Manager
-    </h4>
+    <!-- Main Navigation Links -->
+    <ul class="nav top-nav-links d-none d-md-flex align-items-center mb-0 ps-3 border-start">
+      <li class="nav-item">
+        <a class="nav-link px-3 text-muted fw-semibold <%= typeof path !== 'undefined' && path === '/' ? 'active' : '' %>" href="/">
+          <i class="bi bi-grid-fill me-1"></i> Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link px-3 text-muted fw-semibold <%= typeof path !== 'undefined' && path === '/projects' ? 'active' : '' %>" href="/projects">
+          <i class="bi bi-folder2-open me-1"></i> Projects
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link px-3 text-muted fw-semibold <%= typeof path !== 'undefined' && path === '/tasks' ? 'active' : '' %>" href="/tasks">
+          <i class="bi bi-check2-square me-1"></i> Tasks
+        </a>
+      </li>
+    </ul>
   </div>
 
   <div class="profile-section d-flex align-items-center gap-3">
     
+    <!-- Mobile Menu Button (Dropdown) -->
+    <div class="dropdown d-md-none">
+      <button class="navbar-action-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-list"></i>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+        <li><a class="dropdown-item" href="/"><i class="bi bi-grid-fill me-2"></i>Dashboard</a></li>
+        <li><a class="dropdown-item" href="/projects"><i class="bi bi-folder2-open me-2"></i>Projects</a></li>
+        <li><a class="dropdown-item" href="/tasks"><i class="bi bi-check2-square me-2"></i>Tasks</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item text-danger" href="/logout" onclick="return confirmAction('Logout from application?')"><i class="bi bi-power me-2"></i>Logout</a></li>
+      </ul>
+    </div>
+
     <% if (locals.user) { %>
       <!-- Theme Toggle Button -->
-      <button id="theme-toggle" class="navbar-action-btn" title="Toggle Theme">
+      <button id="theme-toggle" class="navbar-action-btn d-none d-sm-flex" title="Toggle Theme">
         <i class="bi bi-moon"></i>
       </button>
 
       <!-- Notification Bell -->
-      <a href="/notifications" class="navbar-action-btn position-relative" title="Notifications">
+      <a href="/notifications" class="navbar-action-btn position-relative d-none d-sm-flex" title="Notifications">
         <i class="bi bi-bell"></i>
         <% if (locals.unreadCount > 0) { %>
           <span class="notification-pulse-badge">
@@ -36,7 +67,7 @@
 
       <!-- User Profile Dropdown / Details -->
       <div class="d-flex align-items-center gap-3">
-        <div class="text-end d-none d-sm-block">
+        <div class="text-end d-none d-lg-block">
           <div class="fw-bold text-main" style="font-size: 0.9rem; line-height: 1.2;">
             <%= locals.user.name || locals.user.email.split('@')[0] %>
           </div>
@@ -45,8 +76,32 @@
           </small>
         </div>
 
-        <div class="navbar-profile-avatar">
-          <%= locals.user.email.charAt(0).toUpperCase() %>
+        <div class="dropdown">
+          <div class="navbar-profile-avatar dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+            <%= locals.user.email.charAt(0).toUpperCase() %>
+          </div>
+          <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+            <li class="d-lg-none px-3 py-2 text-center border-bottom mb-2">
+              <div class="fw-bold"><%= locals.user.name || locals.user.email.split('@')[0] %></div>
+              <small class="text-muted"><%= locals.user.role %></small>
+            </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center gap-2" href="/profile">
+                <i class="bi bi-person"></i> Profile
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center gap-2" >
+                <i class="bi bi-gear"></i> Settings
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center gap-2 text-danger" href="/logout" onclick="return confirmAction('Logout from application?')">
+                <i class="bi bi-power"></i> Logout
+              </a>
+            </li>
+          </ul>
         </div>
       </div>
     <% } %>
