@@ -85,53 +85,7 @@
   </div>
 </div>
 
-<!-- Search & Filters Control Center -->
-<div class="dashboard-panel-card p-3 mb-4 shadow-sm border border-opacity-10" style="border-radius: 20px;">
-  <div class="row g-3 align-items-center">
-    <!-- Real-time Text Search -->
-    <div class="col-lg-4 col-md-12">
-      <div class="input-group">
-        <span class="input-group-text bg-transparent border-end-0 text-muted" style="border: 1.5px solid var(--border-color); border-radius: 12px 0 0 12px; padding: 10px 14px;">
-          <i class="bi bi-search"></i>
-        </span>
-        <input type="text" id="taskSearch" class="form-control border-start-0" placeholder="Search tasks by title or desc..." style="border: 1.5px solid var(--border-color); border-radius: 0 12px 12px 0; padding: 10px 16px; background: var(--bg-color); color: var(--text-main);">
-      </div>
-    </div>
-    
-    <!-- Status Interactive Filters -->
-    <div class="col-lg-5 col-md-7 col-sm-12">
-      <div class="d-flex flex-wrap gap-2 align-items-center" id="statusFilterGroup">
-        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 filter-pill active" data-status="ALL" style="font-size: 0.8rem; font-weight: 600;">All</button>
-        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 filter-pill" data-status="TODO" style="font-size: 0.8rem; font-weight: 600;">📋 Todo</button>
-        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 filter-pill" data-status="IN_PROGRESS" style="font-size: 0.8rem; font-weight: 600;">🔄 In Progress</button>
-        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 filter-pill" data-status="DONE" style="font-size: 0.8rem; font-weight: 600;">✅ Done</button>
-        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 filter-pill" data-status="OVERDUE" style="font-size: 0.8rem; font-weight: 600;">⚠️ Overdue</button>
-      </div>
-    </div>
-    
-    <!-- Priority Filter Selector -->
-    <div class="col-lg-2 col-md-3 col-sm-8">
-      <select id="priorityFilter" class="form-select rounded-3" style="padding: 10px 16px; border: 1.5px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-weight: 600; font-size: 0.85rem;">
-        <option value="ALL">⚡ All Priorities</option>
-        <option value="LOW">🟦 LOW</option>
-        <option value="MEDIUM">🟨 MEDIUM</option>
-        <option value="HIGH">🟥 HIGH</option>
-      </select>
-    </div>
-    
-    <!-- View Switcher -->
-    <div class="col-lg-1 col-md-2 col-sm-4 text-end">
-      <div class="btn-group border p-1 rounded-3 d-inline-flex" style="background: rgba(0, 0, 0, 0.02); border-color: var(--border-color) !important;">
-        <button id="viewToggleTable" class="btn btn-sm p-1.5 rounded-2 d-flex align-items-center justify-content-center active" style="width: 34px; height: 34px; border: none;" title="Table View">
-          <i class="bi bi-list-task fs-5"></i>
-        </button>
-        <button id="viewToggleGrid" class="btn btn-sm p-1.5 rounded-2 d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; border: none;" title="Grid Card View">
-          <i class="bi bi-grid-3x3-gap-fill fs-5"></i>
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+ 
 
 <!-- ==========================================
       1. TABLE VIEW LAYOUT
