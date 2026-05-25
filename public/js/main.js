@@ -125,12 +125,14 @@ THEME TOGGLE
 */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Highlight active link in sidebar
+  // Highlight active link in sidebar/navbar
   const currentPath = window.location.pathname;
-  const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
-  sidebarLinks.forEach(link => {
+  const navLinks = document.querySelectorAll('.top-nav-links a, .sidebar-menu a');
+  navLinks.forEach(link => {
     if (link.getAttribute('href') === currentPath) {
       link.classList.add('active');
+    } else {
+      link.classList.remove('active');
     }
   });
 

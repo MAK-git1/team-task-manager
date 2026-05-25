@@ -1,0 +1,195 @@
+<!-- Page Header -->
+<div class="d-flex align-items-center gap-3 mb-4">
+  <a href="/" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-semibold">
+    <i class="bi bi-arrow-left me-1"></i> Back
+  </a>
+  <div>
+    <h2 class="dashboard-title mb-0" style="font-size: 1.6rem;">Settings</h2>
+    <p class="dashboard-subtitle m-0" style="font-size: 0.85rem;">Application configuration &amp; preferences</p>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-9 col-lg-7">
+
+    <!-- Main Under-Construction Card -->
+    <div class="settings-construction-card position-relative overflow-hidden" style="border-radius: 28px;">
+
+      <!-- Ambient glow orbs -->
+      <div class="settings-glow-orb settings-glow-orb-1"></div>
+      <div class="settings-glow-orb settings-glow-orb-2"></div>
+
+      <div class="position-relative text-center" style="z-index: 1;">
+
+        <!-- Animated Cog Rings -->
+        <div class="settings-cog-wrapper mx-auto mb-4">
+          <div class="settings-cog-ring settings-ring-outer"></div>
+          <div class="settings-cog-ring settings-ring-inner"></div>
+          <div class="settings-cog-center">
+            <i class="bi bi-gear-fill settings-cog-icon"></i>
+          </div>
+        </div>
+
+        <!-- Status Badge -->
+        <div class="mb-3">
+          <span class="badge settings-status-badge px-3 py-2">
+            <i class="bi bi-tools me-1"></i> In Active Development
+          </span>
+        </div>
+
+        <!-- Headline -->
+        <h2 class="fw-bold mb-3 text-gradient" style="font-size: 1.9rem; letter-spacing: -0.5px;">
+          Working on settings page<br>
+          <span style="font-size: 1.1rem; font-weight: 600; opacity: 0.8;">due to continues Development</span>
+        </h2>
+
+        <!-- Description -->
+        <p class="text-muted mx-auto mb-4" style="max-width: 480px; font-size: 0.95rem; line-height: 1.7;">
+          We're crafting a powerful configuration hub — tailored preferences, fine-grained permissions, notification controls, and workspace customization. It'll be worth the wait.
+        </p>
+
+        <!-- Upcoming Features Chips -->
+        <div class="d-flex flex-wrap justify-content-center gap-2 mb-5">
+          <span class="settings-feature-chip"><i class="bi bi-person-gear me-1"></i>Account Preferences</span>
+          <span class="settings-feature-chip"><i class="bi bi-shield-lock me-1"></i>Security & Roles</span>
+          <span class="settings-feature-chip"><i class="bi bi-bell-slash me-1"></i>Notification Control</span>
+          <span class="settings-feature-chip"><i class="bi bi-palette me-1"></i>Theme Customization</span>
+          <span class="settings-feature-chip"><i class="bi bi-plug me-1"></i>Integrations</span>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="px-2 mb-5">
+          <div class="d-flex justify-content-between mb-2">
+            <small class="fw-bold text-muted" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px;">Development Progress</small>
+            <small class="fw-bold" style="font-size: 0.72rem; color: #6366f1;">72%</small>
+          </div>
+          <div class="progress" style="height: 6px; border-radius: 999px; background: rgba(99,102,241,0.1);">
+            <div class="progress-bar" role="progressbar" style="width: 72%; background: linear-gradient(90deg, #6366f1, #8b5cf6); border-radius: 999px;"></div>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+          <a href="/" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm d-inline-flex align-items-center gap-2"
+             style="background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; font-size: 0.9rem;">
+            <i class="bi bi-house-fill"></i> Go to Dashboard
+          </a>
+          <a href="/tasks" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold d-inline-flex align-items-center gap-2" style="font-size: 0.9rem;">
+            <i class="bi bi-list-task"></i> View Tasks
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+/* ---- Settings Construction Card ---- */
+.settings-construction-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  padding: 56px 48px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.04);
+}
+
+/* Ambient glow blobs */
+.settings-glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+}
+.settings-glow-orb-1 {
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+  top: -80px; left: -80px;
+  animation: settingsFloat1 9s ease-in-out infinite alternate;
+}
+.settings-glow-orb-2 {
+  width: 280px; height: 280px;
+  background: radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%);
+  bottom: -60px; right: -60px;
+  animation: settingsFloat2 11s ease-in-out infinite alternate;
+}
+@keyframes settingsFloat1 {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(30px, 20px); }
+}
+@keyframes settingsFloat2 {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(-20px, -30px); }
+}
+
+/* Cog Animation Rings */
+.settings-cog-wrapper {
+  position: relative;
+  width: 100px; height: 100px;
+  display: flex; align-items: center; justify-content: center;
+}
+.settings-cog-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px dashed rgba(99,102,241,0.3);
+}
+.settings-ring-outer {
+  width: 100px; height: 100px;
+  animation: rotateCW 12s linear infinite;
+}
+.settings-ring-inner {
+  width: 72px; height: 72px;
+  animation: rotateCCW 8s linear infinite;
+  border-color: rgba(139,92,246,0.25);
+}
+.settings-cog-center {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.12));
+  border: 1px solid rgba(99,102,241,0.2);
+  display: flex; align-items: center; justify-content: center;
+}
+.settings-cog-icon {
+  font-size: 1.6rem;
+  color: #6366f1;
+  animation: rotateCW 6s linear infinite;
+}
+@keyframes rotateCW  { from { transform: rotate(0deg);   } to { transform: rotate(360deg);  } }
+@keyframes rotateCCW { from { transform: rotate(0deg);   } to { transform: rotate(-360deg); } }
+
+/* Status badge */
+.settings-status-badge {
+  background: rgba(99,102,241,0.08);
+  color: #6366f1;
+  border: 1px solid rgba(99,102,241,0.2);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+/* Feature chips */
+.settings-feature-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: rgba(99,102,241,0.05);
+  border: 1px solid rgba(99,102,241,0.15);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+.settings-feature-chip:hover {
+  background: rgba(99,102,241,0.1);
+  color: #6366f1;
+  border-color: rgba(99,102,241,0.3);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 576px) {
+  .settings-construction-card { padding: 36px 24px; }
+}
+</style>
